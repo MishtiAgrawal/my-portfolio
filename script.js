@@ -383,79 +383,95 @@ if (contactForm) {
 }
 
 /* ===== CPL Winner Photo Gallery Modal ===== */
-const cplModal = $('#cpl-modal');
-const galleryImage = $('#gallery-image');
-const closeCplBtn = $('#close-cpl-modal');
-const prevBtn = $('#prev-image');
-const nextBtn = $('#next-image');
-const galleryDots = $$('.gallery-dot');
-const cplImages = ['./coding1.jpeg', './coding2.jpeg'];
 let currentImageIndex = 0;
+const cplImages = ['./coding1.jpeg', './coding2.jpeg'];
 
-function openCertModal(type) {
-  console.log('openCertModal called with type:', type);
+// Make function globally accessible
+window.openCertModal = function(type) {
+  console.log('Opening modal for:', type);
   if (type === 'CPL_Winner') {
-    console.log('CPL modal:', cplModal);
-    if (cplModal) {
-      cplModal.classList.add('show');
+    const modal = document.getElementById('cpl-modal');
+    if (modal) {
+      modal.classList.add('show');
       currentImageIndex = 0;
-      updateGallery();
-    } else {
-      console.error('CPL modal element not found!');
+      updateCplGallery();
     }
   }
-}
+};
 
 function closeCplModal() {
-  if (cplModal) {
-    cplModal.classList.remove('show');
+  const modal = document.getElementById('cpl-modal');
+  if (modal) {
+    modal.classList.remove('show');
   }
 }
 
-function updateGallery() {
-  if (!galleryImage) return;
-  galleryImage.src = cplImages[currentImageIndex];
-  galleryDots.forEach((dot, idx) => {
+function updateCplGallery() {
+  const img = document.getElementById('gallery-image');
+  if (img) {
+    img.src = cplImages[currentImageIndex];
+  }
+  
+  const dots = document.querySelectorAll('.gallery-dot');
+  dots.forEach((dot, idx) => {
     if (idx === currentImageIndex) {
-      dot.classList.add('bg-rose-400');
-      dot.classList.remove('bg-gray-300', 'dark:bg-gray-600');
+      dot.style.backgroundColor = '#ee8576';
     } else {
-      dot.classList.remove('bg-rose-400');
-      dot.classList.add('bg-gray-300', 'dark:bg-gray-600');
+      dot.style.backgroundColor = '#d1d5db';
     }
   });
 }
 
-function nextImage() {
+function nextCplImage() {
   currentImageIndex = (currentImageIndex + 1) % cplImages.length;
-  updateGallery();
+  updateCplGallery();
 }
 
-function prevImage() {
+function prevCplImage() {
   currentImageIndex = (currentImageIndex - 1 + cplImages.length) % cplImages.length;
-  updateGallery();
+  updateCplGallery();
 }
 
-// Modal event listeners - with null checks
-if (closeCplBtn) closeCplBtn.addEventListener('click', closeCplModal);
-if (cplModal) cplModal.addEventListener('click', (e) => {
-  if (e.target === cplModal) closeCplModal();
-});
-if (prevBtn) prevBtn.addEventListener('click', prevImage);
-if (nextBtn) nextBtn.addEventListener('click', nextImage);
+// Setup event listeners after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('cpl-modal');
+  const closeBtn = document.getElementById('close-cpl-modal');
+  const prevBtn = document.getElementById('prev-image');
+  const nextBtn = document.getElementById('next-image');
+  const dots = document.querySelectorAll('.gallery-dot');
 
-galleryDots.forEach((dot) => {
-  dot.addEventListener('click', () => {
-    currentImageIndex = parseInt(dot.dataset.index);
-    updateGallery();
-  });
-});
-
-// Keyboard navigation
-document.addEventListener('keydown', (e) => {
-  if (cplModal && cplModal.classList.contains('show')) {
-    if (e.key === 'ArrowLeft') prevImage();
-    if (e.key === 'ArrowRight') nextImage();
-    if (e.key === 'Escape') closeCplModal();
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeCplModal);
   }
+
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeCplModal();
+    });
+  }
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', prevCplImage);
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', nextCplImage);
+  }
+
+  dots.forEach((dot) => {
+    dot.addEventListener('click', () => {
+      currentImageIndex = parseInt(dot.dataset.index) || 0;
+      updateCplGallery();
+    });
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    const modal = document.getElementById('cpl-modal');
+    if (modal && modal.classList.contains('show')) {
+      if (e.key === 'ArrowLeft') prevCplImage();
+      if (e.key === 'ArrowRight') nextCplImage();
+      if (e.key === 'Escape') closeCplModal();
+    }
+  });
 });
